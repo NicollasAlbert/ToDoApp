@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Controller;
 
 import Model.Project;
@@ -9,13 +5,11 @@ import Util.ConnectionFactory;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author Admin
- */
 public class ProjectController {
 
     public void save(Project project) {
@@ -33,10 +27,12 @@ public class ProjectController {
             statement.setString(2, project.getDescription());
             statement.setDate(3, new Date(project.getCreateAt().getTime()));
             statement.setDate(4, new Date(project.getUpdateAt().getTime()));
+            statement.execute();
 
         } catch (Exception ex) {
 
-            throw new RuntimeException("Erro ao salvar a tarefa " + ex.getMessage(), ex);
+            throw new RuntimeException("Erro ao salvar o projeto " 
+                    + ex.getMessage(), ex);
 
         } finally {
 
@@ -62,10 +58,12 @@ public class ProjectController {
             statement.setDate(3, new Date(project.getCreateAt().getTime()));
             statement.setDate(4, new Date(project.getUpdateAt().getTime()));
             statement.setInt(5, project.getId());
+            statement.execute();
 
         } catch (Exception ex) {
 
-            throw new RuntimeException("Erro ao atualizar a tarefa " + ex.getMessage(), ex);
+            throw new RuntimeException("Erro ao atualizar o projeto " 
+                    + ex.getMessage(), ex);
 
         } finally {
 
@@ -76,11 +74,73 @@ public class ProjectController {
     }
 
     public void removeById(int projectId) throws SQLException {
+        
+        String sql = "DELETE FROM projects WHERE id = ?";
+        
+        Connection connection = null;
+        PreparedStatement statement = null;
+        
+        try {
+        
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, projectId);
+            statement.execute();
+        
+        } catch (Exception ex) {
+        
+            throw new RuntimeException("Erro ao deletar o projeto " 
+                    + ex.getMessage(), ex);
+        
+        } finally {
+        
+            ConnectionFactory.closeConnection(connection, statement);
+        
+        }
+        
     }
 
-    public List<Project> getAll(int id) {
+    public List<Project> getAll() {
 
-        return null;
+        String sql = "SELECT * FROM projects";
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        
+        List<Project> projects = new ArrayList<Project>();
+        
+        try {
+        
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+            
+            while (resultSet.next()) {
+            
+                Project project = new Project();
+                project.setId(resultSet.getInt("id"));
+                project.setName(resultSet.getString("name"));
+                project.setDescription(resultSet.getString("description"));
+                project.setCreateAt(resultSet.getDate("createAt"));
+                project.setUpdateAt(resultSet.getDate("updateAt"));
+                
+                projects.add(project);
+            
+            }
+        
+        
+        } catch (Exception ex) {
+        
+            throw new RuntimeException("Erro ao inserir o projeto " 
+                    + ex.getMessage(), ex);
+        
+        } finally {
+        
+            ConnectionFactory.closeConnection(connection, statement, resultSet);
+        
+        }
+        
+        return projects;
     }
 
 }
