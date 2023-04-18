@@ -4,6 +4,8 @@ import Controller.ProjectController;
 import Controller.TaskController;
 import Model.Project;
 import Model.Task;
+import Util.ButtonColumnCellRenderer;
+import Util.DeadlineColumnCellRenderer;
 import Util.TaskTableModel;
 import java.awt.Color;
 import java.awt.Font;
@@ -27,10 +29,11 @@ public class MainScreen extends javax.swing.JFrame {
 
     public MainScreen() {
         initComponents();
-        decorateTableTask();
 
         initDataController();
         initComponentsModel();
+        
+        decorateTableTask();
     }
 
     /**
@@ -458,6 +461,11 @@ public class MainScreen extends javax.swing.JFrame {
         jTableTasks.getTableHeader().setBackground(new Color(0, 153, 102));
         jTableTasks.getTableHeader().setForeground(new Color(255, 255, 255));
 
+        jTableTasks.getColumnModel().getColumn(2).setCellRenderer(new DeadlineColumnCellRenderer());
+        
+        jTableTasks.getColumnModel().getColumn(4).setCellRenderer(new ButtonColumnCellRenderer("edit"));
+        jTableTasks.getColumnModel().getColumn(5).setCellRenderer(new ButtonColumnCellRenderer("delete"));
+        
         //Criando um sort automático para as colunas da table
         jTableTasks.setAutoCreateRowSorter(true);
 
